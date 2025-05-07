@@ -1,15 +1,23 @@
 package com.example.ootd_recommendation_app.ui.home;
 
+import android.app.Application;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+
+
+import com.example.ootd_recommendation_app.data.ChecklistItemEntity;
+import com.example.ootd_recommendation_app.repository.ChecklistRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
-public class HomeViewModel extends ViewModel {
+public class HomeViewModel extends AndroidViewModel {
     //viewmodel에서 전체 데이터 관리 하기
-
+    private ChecklistRepository repository;
     private final MutableLiveData<List<String>> checkedItems = new MutableLiveData<>(new ArrayList<>());
     public LiveData<List<String>> getCheckedItems() {
         return checkedItems;
@@ -17,36 +25,34 @@ public class HomeViewModel extends ViewModel {
 
     public void addCheckedItems(List<String> newItems) {
         List<String> currentList = checkedItems.getValue();
-        if (currentList != null) {
-            for (String item : newItems) {
-                if (!currentList.contains(item)) {
-                    currentList.add(item);
-                }
-            }
-            checkedItems.setValue(currentList);
+        if (currentList == null) {
+            currentList = new ArrayList<>();
         }
+
+        List<String> updatedList = new ArrayList<>(currentList);
+        for (String item : newItems) {
+            if (!updatedList.contains(item)) {
+                updatedList.add(item);
+                repository.insert(new ChecklistItemEntity(item)); // DB에 저장
+            }
+        }
+
+        checkedItems.postValue(updatedList);
+    }
+    public HomeViewModel(@NonNull Application application) {
+        super(application);
+        repository = new ChecklistRepository(application);
+        loadItemsFromDb();
     }
 
-    public void removeItem(String item) {
-        List<String> currentList = checkedItems.getValue();
-        if (currentList != null && currentList.contains(item)) {
-            currentList.remove(item);
-            checkedItems.setValue(currentList);
-        }
+    private void loadItemsFromDb() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<ChecklistItemEntity> items = repository.getAll();
+            List<String> paths = new ArrayList<>();
+            for (ChecklistItemEntity item : items) {
+                paths.add(item.name); // 필요 시 경로 구성
+            }
+            checkedItems.postValue(paths); // LiveData에 반영
+        });
     }
 }
-
-
-
-//수정 전
-/* private final MutableLiveData<String> mText;
-
-    public HomeViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
-    }
-
-    public LiveData<String> getText() {
-        return mText;
-    }
-}*/

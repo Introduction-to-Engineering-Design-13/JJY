@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.ootd_recommendation_app.R;
 import com.example.ootd_recommendation_app.databinding.FragmentHomeBinding;
@@ -37,7 +38,7 @@ public class HomeFragment extends Fragment {
         fab.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
             navController.navigate(R.id.action_global_to_itemFragment);
-            /*navController.navigateUp();*/
+
         });
 
         return root;
@@ -46,28 +47,29 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        HomeViewModel viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        HomeViewModel viewModel = new ViewModelProvider(
+                requireActivity(),
+                new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication())
+        ).get(HomeViewModel.class);
+        // RecyclerView 설정
+        CheckedItemAdapter adapter = new CheckedItemAdapter(new ArrayList<>());
+        binding.checkedItemsRecycler.setAdapter(adapter);
+        binding.checkedItemsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // ViewModel의 데이터 변경 시 어댑터 갱신
         viewModel.getCheckedItems().observe(getViewLifecycleOwner(), items -> {
-            String result = TextUtils.join("\n", items);
-            binding.checkedItemsText.setText(result);
+            adapter.updateData(items); // 아래에 정의할 함수
         });
 
+        // FragmentResultListener로 체크 결과 수신
         getParentFragmentManager().setFragmentResultListener("checklist_result", this, (requestKey, bundle) -> {
             ArrayList<String> paths = bundle.getStringArrayList("checked_items");
             if (paths != null) {
-
                 viewModel.addCheckedItems(paths); // ViewModel에 저장
-//                for (String path : paths) {
-//                    if (!totalCheckedPaths.contains(path)) {
-//                        totalCheckedPaths.add(path);
-//                    }
-//                }
-//                String result = TextUtils.join("\n", totalCheckedPaths);
-//                binding.checkedItemsText.setText(result);
             }
         });
     }
+
 
     @Override
     public void onDestroyView() {
