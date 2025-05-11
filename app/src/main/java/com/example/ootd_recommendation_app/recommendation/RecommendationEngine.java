@@ -13,46 +13,50 @@ public class RecommendationEngine {
     public static List<RecommendedOutfit> generate(List<ChecklistItem> selectedItems, String season) {
         Log.d("RECOMMENDER", "입력된 아이템 수: " + selectedItems.size());
         Log.d("RECOMMENDER", "계절 필터: " + season);
-        List<ChecklistItem> tops = new ArrayList<>();
-        List<ChecklistItem> bottoms = new ArrayList<>();
-        List<ChecklistItem> outers = new ArrayList<>();
-        List<ChecklistItem> shoes = new ArrayList<>();
+
+        List<ChecklistItem> topItems = new ArrayList<>();
+        List<ChecklistItem> bottomItems = new ArrayList<>();
+        List<ChecklistItem> shoesItems = new ArrayList<>();
+        List<ChecklistItem> outerItems = new ArrayList<>();
 
         for (ChecklistItem item : selectedItems) {
             if (item.getSeasons().contains(season)) {
-                String category = item.getParent() != null ? item.getParent().getParent().getText() : null;
-                if ("상의".equals(category)) tops.add(item);
-                else if ("하의".equals(category)) bottoms.add(item);
-                else if ("아우터".equals(category)) outers.add(item);
-                else if ("신발".equals(category)) shoes.add(item);
+                String category = item.getTopLevelCategory();  // ✔ category 직접 사용
+
+                if ("상의".equals(category)) topItems.add(item);
+                else if ("하의".equals(category)) bottomItems.add(item);
+                else if ("신발".equals(category)) shoesItems.add(item);
+                else if ("아우터".equals(category)) outerItems.add(item);
             }
         }
-        Log.d("RECOMMENDER", "상의 수: " + tops.size() + ", 하의 수: " + bottoms.size() + ", 신발 수: " + shoes.size());
+
+        Log.d("RECOMMENDER", "상의 수: " + topItems.size() + ", 하의 수: " + bottomItems.size() + ", 신발 수: " + shoesItems.size());
+
         List<RecommendedOutfit> outfits = new ArrayList<>();
         Random random = new Random();
 
-        for (ChecklistItem top : tops) {
-            for (ChecklistItem bottom : bottoms) {
-                for (ChecklistItem shoe : shoes) {
-                    if (colorsMatch(top, bottom, shoe)) {
-                        ChecklistItem selectedOuter = null;
+        for (ChecklistItem topItem : topItems) {
+            for (ChecklistItem bottomItem : bottomItems) {
+                for (ChecklistItem shoesItem : shoesItems) {
+                    if (colorsMatch(topItem, bottomItem, shoesItem)) {
+                        ChecklistItem outerItem = null;
 
-                        // 🔹 계절별 아우터 조건 적용
+                        // 🔹 계절별 아우터 조건
                         if ("winter".equals(season)) {
-                            if (!outers.isEmpty()) {
-                                selectedOuter = outers.get(random.nextInt(outers.size()));
+                            if (!outerItems.isEmpty()) {
+                                outerItem = outerItems.get(random.nextInt(outerItems.size()));
                             }
                         } else if ("spring".equals(season) || "fall".equals(season)) {
-                            if (!outers.isEmpty() && random.nextBoolean()) {
-                                selectedOuter = outers.get(random.nextInt(outers.size()));
+                            if (!outerItems.isEmpty() && random.nextBoolean()) {
+                                outerItem = outerItems.get(random.nextInt(outerItems.size()));
                             }
                         } else if ("summer".equals(season)) {
-                            if (!outers.isEmpty() && random.nextInt(10) == 0) { // 10% 확률
-                                selectedOuter = outers.get(random.nextInt(outers.size()));
+                            if (!outerItems.isEmpty() && random.nextInt(10) == 0) {
+                                outerItem = outerItems.get(random.nextInt(outerItems.size()));
                             }
                         }
 
-                        outfits.add(new RecommendedOutfit(top, bottom, selectedOuter, shoe));
+                        outfits.add(new RecommendedOutfit(topItem, bottomItem, outerItem, shoesItem));
                     }
                 }
             }
@@ -61,24 +65,6 @@ public class RecommendationEngine {
         return outfits;
     }
 
-    private static boolean colorsMatch(ChecklistItem top, ChecklistItem bottom, ChecklistItem shoe) {
-        String t = normalizeColor(top.getText());
-        String b = normalizeColor(bottom.getText());
-        String s = normalizeColor(shoe.getText());
-
-        // 🔹 단순한 색조합 규칙 예시: 톤온톤 / 무채색 포함 / 유사 색조
-        return (t.equals(b) || b.equals(s)) ||
-                (isNeutral(t) && !isNeutral(b)) ||
-                (isSameGroup(t, b) && isSameGroup(b, s));
-    }
-
-    private static boolean isNeutral(String color) {
-        return color.equalsIgnoreCase("Black") || color.equalsIgnoreCase("White") || color.equalsIgnoreCase("Gray") || color.equalsIgnoreCase("Charcoal") || color.equalsIgnoreCase("Beige");
-    }
-
-    private static boolean isSameGroup(String a, String b) {
-        return getGroup(a).equals(getGroup(b));
-    }
     public static List<ChecklistItem> collectCheckedLeafItemsFromList(List<ChecklistItem> items) {
         List<ChecklistItem> result = new ArrayList<>();
         for (ChecklistItem item : items) {
@@ -93,8 +79,23 @@ public class RecommendationEngine {
         return result;
     }
 
-    private static String normalizeColor(String color) {
-        return color.trim().toLowerCase();
+    private static boolean colorsMatch(ChecklistItem top, ChecklistItem bottom, ChecklistItem shoes) {
+        String t = normalizeColor(top.getText());
+        String b = normalizeColor(bottom.getText());
+        String s = normalizeColor(shoes.getText());
+
+        return (t.equals(b) || b.equals(s)) ||
+                (isNeutral(t) && !isNeutral(b)) ||
+                (isSameGroup(t, b) && isSameGroup(b, s));
+    }
+
+    private static boolean isNeutral(String color) {
+        return color.equalsIgnoreCase("Black") || color.equalsIgnoreCase("White") || color.equalsIgnoreCase("Gray") ||
+                color.equalsIgnoreCase("Charcoal") || color.equalsIgnoreCase("Beige");
+    }
+
+    private static boolean isSameGroup(String a, String b) {
+        return getGroup(a).equals(getGroup(b));
     }
 
     private static String getGroup(String color) {
@@ -132,5 +133,8 @@ public class RecommendationEngine {
                 return "other";
         }
     }
-}
 
+    private static String normalizeColor(String color) {
+        return color.trim().toLowerCase();
+    }
+}

@@ -13,6 +13,12 @@ public class ChecklistItem {
     private int depth; // 들여쓰기 깊이 (0 = 최상위)
     private List<String> seasons = new ArrayList<>(); // 계절 정보 추가
 
+    public void setSubItems(List<ChecklistItem> children) {
+        this.subItems = children;
+        for (ChecklistItem child : children) {
+            child.setParent(this); // 자동 parent 설정
+        }
+    }
 
     public ChecklistItem(String text, boolean checked,int depth) {
         this.text = text;
@@ -47,12 +53,22 @@ public class ChecklistItem {
         return seasons;
     }
 
-    // 최하위 항목인 경우: 본인 season 반환
-// 아닌 경우: 부모의 season 반환
     public Set<String> getEffectiveSeasons() {
-        return new HashSet<>(this.getSeasons().isEmpty() && this.parent != null
-                ? this.parent.getSeasons()
-                : this.getSeasons());
+        ChecklistItem current = this;
+        while (current != null) {
+            if (!current.getSeasons().isEmpty()) {
+                return new HashSet<>(current.getSeasons());
+            }
+            current = current.getParent();
+        }
+        return new HashSet<>(); // 아무 season도 못 찾은 경우
+    }
+    public String getTopLevelCategory() {
+        ChecklistItem current = this;
+        while (current.getParent() != null) {
+            current = current.getParent();
+        }
+        return current.getText();
     }
 
 

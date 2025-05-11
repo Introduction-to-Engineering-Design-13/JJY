@@ -43,13 +43,22 @@ public class ChecklistRepository {
 
     private ChecklistItem toChecklistItem(ChecklistItemEntity entity) {
         ChecklistItem item = new ChecklistItem(entity.getName(), false, 2);
-        Log.d("TO_ITEM", "변환 대상: name=" + entity.getName() + ", season=" + entity.getSeason());
+        Log.d("TO_ITEM", "변환 대상: name=" + entity.getName() + ", season=" + entity.getSeason() + ", category=" + entity.getCategory());
+
 
         if (entity.getSeason() != null && !entity.getSeason().isEmpty()) {
             String[] seasons = entity.getSeason().split(",");
             for (String s : seasons) item.addSeason(s.trim());
         } else {
             Log.w("TO_ITEM", "시즌 없음!");
+        }
+
+        // 🔹 category 설정
+        if (entity.getCategory() != null) {
+            ChecklistItem parent = new ChecklistItem(entity.getCategory(), false, 1);
+            ChecklistItem grandparent = new ChecklistItem(entity.getCategory(), false, 0);
+            parent.setParent(grandparent);
+            item.setParent(parent);
         }
 
         return item;

@@ -50,9 +50,11 @@ public class HomeViewModel extends AndroidViewModel {
             List<ChecklistItemEntity> items = repository.getAll();
             List<String> paths = new ArrayList<>();
             for (ChecklistItemEntity item : items) {
-                paths.add(item.name); // 필요 시 경로 구성
+                // ✅ 경로 전체를 표시 (ex: 상의 → 후드 → Black)
+                paths.add(item.getPath());
             }
             checkedItems.postValue(paths); // LiveData에 반영
         });
     }
+
 }

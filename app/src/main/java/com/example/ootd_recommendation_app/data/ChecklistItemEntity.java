@@ -16,7 +16,16 @@ public class ChecklistItemEntity {
     public String path;
     @ColumnInfo(name = "season")
     public String season;
+    @ColumnInfo(name = "category") // 🔹 추가
+    public String category;
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
     public ChecklistItemEntity(String name) {
         this.name = name;
     }
