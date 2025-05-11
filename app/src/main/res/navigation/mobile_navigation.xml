@@ -12,12 +12,6 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.example.ootd_recommendation_app.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
-
-    <fragment
         android:id="@+id/nav_slideshow"
         android:name="com.example.ootd_recommendation_app.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
@@ -32,6 +26,44 @@
         android:id="@+id/action_global_to_itemFragment"
         app:destination="@id/itemFragment"
         app:popUpToInclusive="false" />
+    <fragment
+        android:id="@+id/nav_gallery"
+        android:name="com.example.ootd_recommendation_app.ui.gallery.GalleryFragment"
+        android:label="@string/menu_gallery" >
 
+        <action
+            android:id="@+id/action_galleryFragment_to_springFragment"
+            app:destination="@id/springFragment" />
+
+        <action
+            android:id="@+id/action_galleryFragment_to_summerFragment"
+            app:destination="@id/summerFragment" />
+
+        <action
+            android:id="@+id/action_galleryFragment_to_fallFragment"
+            app:destination="@id/fallFragment" />
+
+        <action
+            android:id="@+id/action_galleryFragment_to_winterFragment"
+            app:destination="@id/winterFragment" />
+    </fragment>
+
+    <!-- 계절별 프래그먼트 선언 -->
+    <fragment
+        android:id="@+id/springFragment"
+        android:name="com.example.ootd_recommendation_app.ui.gallery.SpringFragment"
+        android:label="봄" />
+    <fragment
+        android:id="@+id/summerFragment"
+        android:name="com.example.ootd_recommendation_app.ui.gallery.SummerFragment"
+        android:label="여름" />
+    <fragment
+        android:id="@+id/fallFragment"
+        android:name="com.example.ootd_recommendation_app.ui.gallery.FallFragment"
+        android:label="가을" />
+    <fragment
+        android:id="@+id/winterFragment"
+        android:name="com.example.ootd_recommendation_app.ui.gallery.WinterFragment"
+        android:label="겨울" />
 
 </navigation>

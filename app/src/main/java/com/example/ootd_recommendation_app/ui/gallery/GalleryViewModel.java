@@ -1,19 +1,27 @@
 package com.example.ootd_recommendation_app.ui.gallery;
 
+import android.app.Application;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
-public class GalleryViewModel extends ViewModel {
+import com.example.ootd_recommendation_app.weather.WeatherViewModel;
 
-    private final MutableLiveData<String> mText;
+public class GalleryViewModel extends AndroidViewModel {
 
-    public GalleryViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is gallery fragment");
+    private final WeatherViewModel weatherViewModel;
+
+    public GalleryViewModel(@NonNull Application application) {
+        super(application);
+        weatherViewModel = new WeatherViewModel(application);
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public LiveData<String> getWeatherText() {
+        return weatherViewModel.getWeatherData();
+    }
+
+    public void fetchWeather(String apiKey) {
+        weatherViewModel.fetchWeather(apiKey);
     }
 }

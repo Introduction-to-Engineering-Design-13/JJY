@@ -14,11 +14,34 @@ public class ChecklistItemEntity {
     public String name;
     @ColumnInfo(name = "path")  // ex: 상의 → 후드 → 빨강
     public String path;
+    @ColumnInfo(name = "season")
+    public String season;
 
     public ChecklistItemEntity(String name) {
         this.name = name;
     }
+    public String getName() {
+        return name;
+    }
 
+    public String getSeason() {
+        return season;
+    }
+
+    public String getPath() {
+        return path;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSeason(String season) {
+        this.season = season;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
     // Room이 내부적으로 필요로 하는 기본 생성자도 있으면 좋음
     public ChecklistItemEntity() {}
 }

@@ -31,7 +31,10 @@ public class CheckedItemAdapter extends RecyclerView.Adapter<CheckedItemAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.textView.setText(checkedItems.get(position));
+        String itemText = checkedItems.get(position);
+        holder.textView.setText(itemText);
+
+        // ❗ 향후 삭제 버튼 또는 색상 강조 가능성 고려
     }
 
     @Override

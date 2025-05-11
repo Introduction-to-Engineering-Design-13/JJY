@@ -73,6 +73,7 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
                     List<ChecklistItem> subitems = new ArrayList<>();
                     for (ChecklistItem child : item.subItems) {
                         child.setDepth(item.getDepth() + 1);
+                        child.setParent(item);
                         subitems.add(child);
                     }
 
